@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Smart TV Assistant</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Segoe UI", Tahoma, sans-serif;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CONTENEDOR */
+#chat {
+    width: 380px;
+    height: 550px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+}
+
+/* HEADER */
+#header {
+    background: #4f46e5;
+    color: white;
+    padding: 15px;
+    font-weight: bold;
+    text-align: center;
+}
+
+/* MENSAJES */
+#mensajes {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+}
+
+/* SCROLL BONITO */
+#mensajes::-webkit-scrollbar {
+    width: 6px;
+}
+
+#mensajes::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+/* MENSAJES */
+.mensaje {
+    max-width: 75%;
+    margin: 8px 0;
+    padding: 10px 14px;
+    border-radius: 15px;
+    font-size: 14px;
+    animation: fadeIn 0.3s ease;
+}
+
+.usuario {
+    background: #4f46e5;
+    color: white;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.bot {
+    background: #f1f1f1;
+    color: #333;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+/* INPUT */
+#input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    background: #fafafa;
+}
+
+#input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    outline: none;
+    font-size: 14px;
+}
+
+/* BOTÓN */
+button {
+    margin-left: 10px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 20px;
+    background: #4f46e5;
+    color: white;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #4338ca;
+}
+
+/* ANIMACIÓN */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(5px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="chat">
+
+    <div id="header">
+        📺 Smart TV Assistant
+    </div>
+
+    <div id="mensajes"></div>
+
+    <div id="input-area">
+        <input id="input" type="text" placeholder="Describe tu problema...">
+        <button onclick="enviar()">➤</button>
+    </div>
+
+</div>
+
+<script>
+function agregarMensaje(texto, clase) {
+    const div = document.createElement("div");
+    div.className = "mensaje " + clase;
+    div.innerText = texto;
+
+    const contenedor = document.getElementById("mensajes");
+    contenedor.appendChild(div);
+
+    // Auto scroll
+    contenedor.scrollTop = contenedor.scrollHeight;
+}
+
+async function enviar() {
+    const input = document.getElementById("input");
+    const mensaje = input.value.trim();
+
+    if (mensaje === "") return;
+
+    agregarMensaje(mensaje, "usuario");
+    input.value = "";
+
+    try {
+        const res = await fetch("http://127.0.0.1:5000/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ mensaje })
+        });
+
+        const data = await res.json();
+
+        agregarMensaje(data.respuesta, "bot");
+    } catch (error) {
+        agregarMensaje("Error conectando con el servidor 😢", "bot");
+    }
+}
+
+// ENTER PARA ENVIAR
+document.getElementById("input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") enviar();
+});
+
+// MENSAJE INICIAL
+window.onload = () => {
+    agregarMensaje("Hola 👋 Soy tu asistente de Smart TV. ¿Qué problema tienes?", "bot");
+};
+</script>
+
+</body>
+</html>
