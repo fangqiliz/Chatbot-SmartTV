@@ -169,7 +169,7 @@ async function enviar() {
     input.value = "";
 
     try {
-        const res = await fetch("https://chatbot-smarttv.onrender.com/", {
+        const res = await fetch("https://chatbot-smarttv.onrender.com/chat", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
